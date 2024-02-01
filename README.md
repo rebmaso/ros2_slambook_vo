@@ -13,6 +13,8 @@ This is my adaptation of the visual odometry code in [the SlamBook](https://gith
 
 ## TODOs
 
+- add prior to windowed BA ... this is wrong and leads to hessian singularities if not using LM
+
 - old keyframes are stored w images landmarks ...and keep growing. bad. do not keep old images. just save descriptrors using dbow & use those descriptors to match loop kf
 
 - add covisibility constraints for loop closure
