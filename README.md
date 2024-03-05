@@ -1,6 +1,8 @@
 # ros_slambook_vo
 
-This is my adaptation of the visual odometry code in [the SlamBook](https://github.com/gaoxiang12/slambook2). I'm using it as a baseline to modify small things and add features, such as relocalization.
+This is my adaptation of the visual odometry code in [the SlamBook](https://github.com/gaoxiang12/slambook2). I'm using it as a baseline to modify small things and add features, such as relocalization and ros2 support.
+
+Just add it to your ros2_ws and run `colcon build`
 
 ## Changelog
 
@@ -12,6 +14,8 @@ This is my adaptation of the visual odometry code in [the SlamBook](https://gith
 
 
 ## TODOs
+
+- test on synthetic rosbag with loop closures and gps like tartan air or mid air
 
 - add prior to windowed BA ... this is wrong and leads to hessian singularities if not using LM
 
