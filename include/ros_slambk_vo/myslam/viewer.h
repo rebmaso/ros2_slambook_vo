@@ -6,11 +6,14 @@
 #define MYSLAM_VIEWER_H
 
 #include <thread>
+#include <chrono>
 #include <pangolin/pangolin.h>
 
 #include "myslam/common_include.h"
 #include "myslam/frame.h"
 #include "myslam/map.h"
+
+using namespace std::chrono_literals;
 
 namespace myslam {
 

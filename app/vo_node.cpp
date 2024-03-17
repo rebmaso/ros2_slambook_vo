@@ -1,5 +1,5 @@
 
-#include <gflags/gflags.h>
+// #include <gflags/gflags.h>
 #include <stdexcept>
 
 #include "myslam/visual_odometry.h"
@@ -15,36 +15,37 @@ using std::placeholders::_1;
 class VONode : public rclcpp::Node
 {
   public:
+
     VONode(const std::string & configPath)
-    : Node("vo_node"),
+    : Node("vo_node"){
 
     // get topic names from config file
     myslam::Config config;
     config.SetParameterFile(configPath);
-    const string leftImageTopic = Config::Get<string>("cam0_topic");
-    const string rightImageTopic = Config::Get<string>("cam0_topic");
+
+    leftImageTopic = Config::Get<string>("cam0_topic");
+    rightImageTopic = Config::Get<string>("cam1_topic");
 
     // init callbacks
     image0Sub(nh, leftImageTopic, 1000);
     image1Sub(nh, rightImageTopic, 1000);
 
-    // Message synchronizer
-    time_sync(MySyncPolicy(1000), image0Sub, image1Sub)
-    {   
-        vo = std::make_shared<myslam::VisualOdometry>(configPath);
-        assert(vo->Init() == true);
+    vo = std::make_shared<myslam::VisualOdometry>(configPath);
+    assert(vo->Init() == true);
 
-        // Synchronize the messages from the two image topics
-        time_sync.registerCallback(std::bind(&VONode::imageCallback, this, _1, _2));
+    // Synchronize the messages from the two image topics
+    time_sync(MySyncPolicy(1000), image0Sub, image1Sub)
+    time_sync.registerCallback(std::bind(&VONode::imageCallback, this, _1, _2));
+    
     }
 
   private:
 
-    myslam::VisualOdometry::Ptr;
-
+    myslam::VisualOdometry::Ptr vo;
+    std::string leftImageTopic, rightImageTopic;
     message_filters::Subscriber<sensor_msgs::msg::Image> image0Sub;
     message_filters::Subscriber<sensor_msgs::msg::Image> image1Sub;
-    typedef message_filters::sync_policies::ApproximateTime<Image, Image> MySyncPolicy;
+    typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::msg::Image, sensor_msgs::msg::Image> MySyncPolicy;
     message_filters::Synchronizer<MySyncPolicy> time_sync;
 
     void imageCallback(const sensor_msgs::msg::Image::SharedPtr img_0,

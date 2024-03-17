@@ -71,7 +71,7 @@ void Viewer::ThreadLoop() {
         }
 
         pangolin::FinishFrame();
-        usleep(5000);
+        std::this_thread::sleep_for(5000ms);
     }
 
     LOG(INFO) << "Stop viewer";
