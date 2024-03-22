@@ -20,26 +20,35 @@ class VONode : public rclcpp::Node
   public:
 
     VONode(const std::string & configPath)
-    : Node("vo_node"){
+    : Node("vo_node")
+      
+      , time_sync(MySyncPolicy, image0Sub, image1Sub, 10) // Initialize the time_sync member
+
+    {
+
+    rclcpp::QoS qos(10);
+    auto rmw_qos_profile = qos.get_rmw_qos_profile();
+
 
     // get topic names from config file
-    if (Config::SetParameterFile(config_file_path_) == false) {
+    if (Config::SetParameterFile(configPath) == false) {
         throw std::runtime_error("[ERROR] Forgot to pass node config file");
     }
-
-    leftImageTopic = Config::Get<string>("cam0_topic");
-    rightImageTopic = Config::Get<string>("cam1_topic");
-
-    // init callbacks
-    image0Sub(nh, leftImageTopic, 1000);
-    image1Sub(nh, rightImageTopic, 1000);
 
     vo = std::make_shared<myslam::VisualOdometry>(configPath);
     assert(vo->Init() == true);
 
+    leftImageTopic = Config::Get<std::string>("cam0_topic");
+    rightImageTopic = Config::Get<std::string>("cam1_topic");
+
+    // If you dont want to use init list, do:
+
+    // init callbacks
+    image0Sub.subscribe(this, leftImageTopic, rmw_qos_profile);
+    image1Sub.subscribe(this, rightImageTopic, rmw_qos_profile);
+
     // Synchronize the messages from the two image topics
-    time_sync(MySyncPolicy(1000), image0Sub, image1Sub)
-    time_sync.registerCallback(std::bind(&VONode::imageCallback, this, _1, _2));
+    time_sync.registerCallback(std::bind(&VONode::imagesCallback, this, std::placeholders::_1, std::placeholders::_2));
     
     }
 
@@ -52,7 +61,7 @@ class VONode : public rclcpp::Node
     typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::msg::Image, sensor_msgs::msg::Image> MySyncPolicy;
     message_filters::Synchronizer<MySyncPolicy> time_sync;
 
-    void imageCallback(const sensor_msgs::msg::Image::SharedPtr img_0,
+    void imagesCallback(const sensor_msgs::msg::Image::SharedPtr img_0,
                          const sensor_msgs::msg::Image::SharedPtr img_1) const
     { 
 
