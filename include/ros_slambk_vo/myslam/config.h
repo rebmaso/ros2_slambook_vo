@@ -29,6 +29,7 @@ class Config {
         return T(Config::config_->file_[key]);
     }
 };
-}  // namespace myslam
+
+} // namespace myslam
 
 #endif  // MYSLAM_CONFIG_H

@@ -8,9 +8,12 @@
 #include "sensor_msgs/msg/image.hpp"
 #include "message_filters/subscriber.h"
 #include "message_filters/time_synchronizer.h"
+#include "message_filters/sync_policies/approximate_time.h"
 
 using namespace message_filters;
 using std::placeholders::_1;
+
+namespace myslam {
 
 class VONode : public rclcpp::Node
 {
@@ -20,8 +23,9 @@ class VONode : public rclcpp::Node
     : Node("vo_node"){
 
     // get topic names from config file
-    myslam::Config config;
-    config.SetParameterFile(configPath);
+    if (Config::SetParameterFile(config_file_path_) == false) {
+        throw std::runtime_error("[ERROR] Forgot to pass node config file");
+    }
 
     leftImageTopic = Config::Get<string>("cam0_topic");
     rightImageTopic = Config::Get<string>("cam1_topic");
@@ -87,4 +91,6 @@ int main(int argc, char * argv[])
     rclcpp::shutdown();
 
     return 0;
+}
+
 }

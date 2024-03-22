@@ -1,6 +1,7 @@
 #include "myslam/config.h"
 
 namespace myslam {
+
 bool Config::SetParameterFile(const std::string &filename) {
     if (config_ == nullptr)
         config_ = std::shared_ptr<Config>(new Config);
@@ -20,4 +21,4 @@ Config::~Config() {
 
 std::shared_ptr<Config> Config::config_ = nullptr;
 
-}
+} // namespace myslam
