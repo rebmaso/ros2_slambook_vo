@@ -19,10 +19,11 @@ class VONode : public rclcpp::Node
 {
   public:
 
-    VONode(const std::string & configPath)
-    : Node("vo_node")
-      
-      , time_sync(MySyncPolicy, image0Sub, image1Sub, 10) // Initialize the time_sync member
+    VONode(std::string & configPath):
+
+      Node("vo_node"),
+
+      time_sync(ApproxPolicy(10), image0Sub, image1Sub)
 
     {
 
@@ -56,13 +57,15 @@ class VONode : public rclcpp::Node
 
     myslam::VisualOdometry::Ptr vo;
     std::string leftImageTopic, rightImageTopic;
+
     message_filters::Subscriber<sensor_msgs::msg::Image> image0Sub;
     message_filters::Subscriber<sensor_msgs::msg::Image> image1Sub;
-    typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::msg::Image, sensor_msgs::msg::Image> MySyncPolicy;
-    message_filters::Synchronizer<MySyncPolicy> time_sync;
 
-    void imagesCallback(const sensor_msgs::msg::Image::SharedPtr img_0,
-                         const sensor_msgs::msg::Image::SharedPtr img_1) const
+    typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::msg::Image, sensor_msgs::msg::Image> ApproxPolicy;
+    message_filters::Synchronizer<ApproxPolicy> time_sync;
+
+    void imagesCallback(const std::shared_ptr<const sensor_msgs::msg::Image>& img_0,
+                    const std::shared_ptr<const sensor_msgs::msg::Image>& img_1)
     { 
 
       // Convert left_img_msg and right_img_msg to cv::Mat
@@ -80,6 +83,8 @@ class VONode : public rclcpp::Node
 
 };
 
+}
+
 int main(int argc, char * argv[])
 {   
     google::InitGoogleLogging(argv[0]);
@@ -96,10 +101,8 @@ int main(int argc, char * argv[])
     std::string configPath(allArgs[0]);
 
     rclcpp::init(argc, argv);
-    rclcpp::spin(std::make_shared<VONode>(configPath));
+    rclcpp::spin(std::make_shared<myslam::VONode>(configPath));
     rclcpp::shutdown();
 
     return 0;
-}
-
 }
