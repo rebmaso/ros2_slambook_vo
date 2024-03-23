@@ -96,7 +96,7 @@ int main(int argc, char * argv[])
     if (argc > 1) {
         allArgs.assign(argv + 1, argv + argc);
     }
-    else throw std::runtime_error("Pass a config file.");
+    else throw std::runtime_error("[ERROR] Pass a config file.");
 
     std::string configPath(allArgs[0]);
 

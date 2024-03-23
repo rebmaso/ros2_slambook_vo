@@ -1,0 +1,11 @@
+<launch>
+
+  <arg name="config" default="uhumans.yaml" />
+
+  <group>
+    <node pkg="slambk_vo" exec="main" name="slambk_vo_node" output="screen">
+      <param name="config_file" value="$(var config)"/>
+    </node>
+  </group>
+
+</launch>

@@ -1,3 +1,3 @@
-add_executable(vo_node vo_node.cpp)
-target_link_libraries(vo_node myslam ${THIRD_PARTY_LIBS})
-ament_target_dependencies(vo_node rclcpp std_msgs sensor_msgs message_filters)
+add_executable(main vo_node.cpp)
+target_link_libraries(main myslam ${THIRD_PARTY_LIBS})
+ament_target_dependencies(main rclcpp std_msgs sensor_msgs message_filters)

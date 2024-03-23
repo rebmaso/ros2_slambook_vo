@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(ros_slambk_vo)
+project(slambk_vo)
 
 set(CMAKE_CXX_STANDARD 14)
 # set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -76,9 +76,33 @@ enable_testing()
 
 ############### source and test ######################
 
-include_directories(${PROJECT_SOURCE_DIR}/include/ros_slambk_vo)
+include_directories(${PROJECT_SOURCE_DIR}/include/slambk_vo)
 
 add_subdirectory(src)
 add_subdirectory(app)
+
+############### install ##############
+
+# Install launch files.
+install(DIRECTORY
+  launch
+  DESTINATION share/${PROJECT_NAME}/
+)
+
+# Install libraries
+install(TARGETS main myslam
+  DESTINATION lib/${PROJECT_NAME}/
+)
+
+# Install include directories
+install(DIRECTORY include/${PROJECT_NAME}/
+  DESTINATION include/${PROJECT_NAME}
+)
+
+# Install python programs
+# install(PROGRAMS
+#   ${PROJECT_NAME}/whole_body_robot_bringup.py
+#   DESTINATION lib/${PROJECT_NAME}
+# )
 
 ament_package()
