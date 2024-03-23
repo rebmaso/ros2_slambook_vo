@@ -79,7 +79,6 @@ enable_testing()
 include_directories(${PROJECT_SOURCE_DIR}/include/slambk_vo)
 
 add_subdirectory(src)
-add_subdirectory(app)
 
 ############### install ##############
 
@@ -90,7 +89,7 @@ install(DIRECTORY
 )
 
 # Install libraries
-install(TARGETS main myslam
+install(TARGETS main
   DESTINATION lib/${PROJECT_NAME}/
 )
 
