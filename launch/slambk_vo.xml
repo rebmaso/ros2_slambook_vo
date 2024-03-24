@@ -1,11 +1,14 @@
 <launch>
 
-  <arg name="config" default="uhumans.yaml" />
+  <!-- <arg name="config" default="$(find-pkg-prefix)/config/uhumans.yaml" /> -->
 
   <group>
     <node pkg="slambk_vo" exec="main" name="slambk_vo_node" output="screen">
-      <param name="config_file" value="$(var config)"/>
+      <!-- <param name="config_file" value="$(var config)"/> -->
     </node>
   </group>
 
 </launch>
+
+<!-- or, just use ros2 run -->
+<!-- ros2 run slambk_vo main /home/tommaso/ros2_ws/src/slambk_vo/config/uhumans.yaml -->
