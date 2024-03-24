@@ -19,7 +19,7 @@ bool Dataset::Init() {
         return false;
     }
 
-    for (int i = 0; i < 4; ++i) {
+    for (int i = 0; i < 2; ++i) {
         char camera_name[3];
         for (int k = 0; k < 3; ++k) {
             fin >> camera_name[k];

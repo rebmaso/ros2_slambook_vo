@@ -15,6 +15,8 @@ Just add it to your ros2_ws and run `colcon build`
 
 ## TODOs
 
+- i think i should resize input images bc intrinsics are scaled.
+
 - test on synthetic rosbag with loop closures and gps like tartan air or mid air
 
 - add prior to windowed BA ... this is wrong and leads to hessian singularities if not using LM

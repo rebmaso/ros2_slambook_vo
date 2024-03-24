@@ -13,7 +13,7 @@ namespace myslam {
 
         // load vocabulary
         LOG(INFO) << "Loading vocabulary... ";
-        vocab.load("../vocabulary.yml.gz");
+        vocab.load(Config::Get<std::string>("vocabulary"));
         if (vocab.empty()) {
             // fatal terminates program
             LOG(FATAL) << "Vocabulary does not exist.";

@@ -10,6 +10,7 @@ namespace myslam {
 VisualOdometry::VisualOdometry(std::string &config_path)
     : config_file_path_(config_path) {}
 
+// uses dataset class
 bool VisualOdometry::Init() {
     // read from config file
     if (Config::SetParameterFile(config_file_path_) == false) {
@@ -48,6 +49,7 @@ bool VisualOdometry::Init() {
     return true;
 }
 
+
 // Call Step()
 void VisualOdometry::Run() {
     while (1) {
@@ -83,6 +85,7 @@ bool VisualOdometry::Step() {
     return success;
 }
 
+// method that does not use dataset
 bool VisualOdometry::Step(Frame::Ptr & new_frame) {
 
     if (new_frame == nullptr) {
