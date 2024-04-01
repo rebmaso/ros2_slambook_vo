@@ -101,7 +101,12 @@ int main(int argc, char * argv[])
     std::string configPath(allArgs[0]);
 
     rclcpp::init(argc, argv);
+
+    LOG(INFO) << "Waiting on input frames...";
+
     rclcpp::spin(std::make_shared<myslam::VONode>(configPath));
+
+
     rclcpp::shutdown();
 
     return 0;

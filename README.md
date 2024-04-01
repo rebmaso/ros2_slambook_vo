@@ -4,6 +4,17 @@ This is my adaptation of the visual odometry code in [the SlamBook](https://gith
 
 Just add it to your ros2_ws and run `colcon build`
 
+Then run with: 
+
+```
+# Launch rviz
+gnome-terminal -- bash -c "cd ~/ros2_ws; source install/setup.bash; ros2 run rviz2 rviz2 -d src/slambk_vo/config/uhumans/uhumans.rviz; exec bash" &
+# Launch node
+gnome-terminal -- bash -c "cd ~/ros2_ws; source install/setup.bash; ros2 run slambk_vo main src/slambk_vo/config/uhumans/config.yaml; exec bash" &
+# Play ros bag
+gnome-terminal -- bash -c "cd ~/Datasets/uhumans; ros2 bag play  uHumans2_apartment_s1_00h_ros2.bag; exec bash" &
+```
+
 ## Changelog
 
 - added relocalization
