@@ -74,6 +74,7 @@ class VONode : public rclcpp::Node
       const cv::Mat raw_img_1(img_1->height, img_1->width, CV_8UC1,
                     const_cast<uint8_t*>(&img_1->data[0]), img_1->step);
 
+
       auto new_frame = Frame::CreateFrame();
       new_frame->left_img_ = raw_img_0;
       new_frame->right_img_ = raw_img_1;

@@ -36,10 +36,10 @@ class Frontend {
 
     Frontend();
 
-        /// External interface, adds a frame and computes its pose estimation result
+    /// External interface, adds a frame and computes its pose estimation result
     bool AddFrame(Frame::Ptr frame);
 
-        /// Set functions
+    /// Set functions
     void SetMap(Map::Ptr map) { map_ = map; }
 
     void SetBackend(std::shared_ptr<Backend> backend) { backend_ = backend; }

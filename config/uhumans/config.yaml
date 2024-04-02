@@ -2,8 +2,8 @@
 
 # camera calibration file
 # in KITTI convention
-dataset_dir: "/home/tommaso/ros2_ws/src/slambk_vo/config/uhumans"
-vocabulary: "/home/tommaso/ros2_ws/src/slambk_vo/vocabulary.yml.gz"
+dataset_dir: "~/ros2_ws/src/slambk_vo/config/uhumans"
+vocabulary: "~/ros2_ws/src/slambk_vo/vocabulary.yml.gz"
 
 num_features: 1000
 num_features_init: 50
@@ -12,7 +12,7 @@ num_features_tracking: 50
 loop_closure_kf_queue_max_size: 100
 
 # topics
-cam0_topic: "cam0"
-cam1_topic: "cam1"
+cam0_topic: "/tesse/left_cam/mono/image_raw"
+cam1_topic: "/tesse/right_cam/mono/image_raw"
 
 

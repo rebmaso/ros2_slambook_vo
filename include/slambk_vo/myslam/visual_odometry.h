@@ -39,7 +39,7 @@ class VisualOdometry {
     bool Step();
 
     // to use in a ros callback
-    bool Step(Frame::Ptr & new_frame);
+    bool Step(Frame::Ptr new_frame);
 
     FrontendStatus GetFrontendStatus() const { return frontend_->GetStatus(); }
 

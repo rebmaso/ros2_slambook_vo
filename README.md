@@ -15,6 +15,20 @@ gnome-terminal -- bash -c "cd ~/ros2_ws; source install/setup.bash; ros2 run sla
 gnome-terminal -- bash -c "cd ~/Datasets/uhumans; ros2 bag play  uHumans2_apartment_s1_00h_ros2.bag; exec bash" &
 ```
 
+To debug the ros node: 
+
+```
+colcon build --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo
+```
+
+
+```
+# Launch node
+gnome-terminal -- bash -c "cd ~/ros2_ws; source install/setup.bash; ros2 run --prefix 'gdb -ex run --args' slambk_vo main src/slambk_vo/config/uhumans/config.yaml; exec bash" &
+# Play ros bag
+gnome-terminal -- bash -c "cd ~/Datasets/uhumans; ros2 bag play  uHumans2_apartment_s1_00h_ros2.bag; exec bash" &
+```
+
 ## Changelog
 
 - added relocalization
@@ -25,8 +39,6 @@ gnome-terminal -- bash -c "cd ~/Datasets/uhumans; ros2 bag play  uHumans2_apartm
 
 
 ## TODOs
-
-- i think i should resize input images bc intrinsics are scaled.
 
 - test on synthetic rosbag with loop closures and gps like tartan air or mid air
 

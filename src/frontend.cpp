@@ -12,7 +12,14 @@ Frontend::Frontend() {
     num_features_ = Config::Get<int>("num_features");
 }
 
-bool Frontend::AddFrame(myslam::Frame::Ptr frame) {
+bool Frontend::AddFrame(Frame::Ptr frame) {
+    
+    // cv::imshow("raw_img_0",frame->left_img_);
+    // cv::imshow("raw_img_1",frame->right_img_);
+    // cv::waitKey();
+
+    if (frame == nullptr) {return false;}
+    
     current_frame_ = frame;
 
     switch (status_) {

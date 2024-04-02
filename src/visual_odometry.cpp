@@ -86,7 +86,7 @@ bool VisualOdometry::Step() {
 }
 
 // method that does not use dataset
-bool VisualOdometry::Step(Frame::Ptr & new_frame) {
+bool VisualOdometry::Step(Frame::Ptr new_frame) {
 
     if (new_frame == nullptr) {
         backend_->Stop();
