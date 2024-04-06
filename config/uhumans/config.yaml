@@ -2,8 +2,8 @@
 
 # camera calibration file
 # in KITTI convention
-dataset_dir: "~/ros2_ws/src/slambk_vo/config/uhumans"
-vocabulary: "~/ros2_ws/src/slambk_vo/vocabulary.yml.gz"
+dataset_dir: "/home/tommaso/ros2_ws/src/slambk_vo/config/uhumans"
+vocabulary: "/home/tommaso/ros2_ws/src/slambk_vo/vocabulary.yml.gz"
 
 num_features: 1000
 num_features_init: 50

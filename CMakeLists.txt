@@ -82,6 +82,8 @@ add_subdirectory(src)
 
 ############### install ##############
 
+# This puts include files, libs and launch files in the install dir in the ros ws
+
 # Install launch files.
 install(DIRECTORY
   launch

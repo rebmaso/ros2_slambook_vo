@@ -15,6 +15,7 @@ using std::placeholders::_1;
 
 namespace myslam {
 
+
 class VONode : public rclcpp::Node
 {
   public:
@@ -26,23 +27,24 @@ class VONode : public rclcpp::Node
       time_sync(ApproxPolicy(10), image0Sub, image1Sub)
 
     {
-
+    
+    // set ros 2 qos profile
     rclcpp::QoS qos(10);
     auto rmw_qos_profile = qos.get_rmw_qos_profile();
 
 
     // get topic names from config file
-    if (Config::SetParameterFile(configPath) == false) {
+    if (Config::SetParameterFile(configPath) == false)
         throw std::runtime_error("[ERROR] Forgot to pass node config file");
-    }
-
+    
+    // create vo object and init
     vo = std::make_shared<myslam::VisualOdometry>(configPath);
-    assert(vo->Init() == true);
+    if(!vo->Init()) 
+      throw std::runtime_error("[ERROR] VO init failed");
 
+    // get image topic names
     leftImageTopic = Config::Get<std::string>("cam0_topic");
     rightImageTopic = Config::Get<std::string>("cam1_topic");
-
-    // If you dont want to use init list, do:
 
     // init callbacks
     image0Sub.subscribe(this, leftImageTopic, rmw_qos_profile);
@@ -88,25 +90,27 @@ class VONode : public rclcpp::Node
 
 int main(int argc, char * argv[])
 {   
+
+    // set up google logging
     google::InitGoogleLogging(argv[0]);
     FLAGS_stderrthreshold = 0; // INFO: 0, WARNING: 1, ERROR: 2, FATAL: 3
     FLAGS_colorlogtostderr = 1;
 
+    // get config file from args
     std::vector<std::string> allArgs;
-
     if (argc > 1) {
         allArgs.assign(argv + 1, argv + argc);
     }
     else throw std::runtime_error("[ERROR] Pass a config file.");
-
     std::string configPath(allArgs[0]);
 
+    // init ros 2
     rclcpp::init(argc, argv);
 
     LOG(INFO) << "Waiting on input frames...";
 
+    // launch suscribers
     rclcpp::spin(std::make_shared<myslam::VONode>(configPath));
-
 
     rclcpp::shutdown();
 

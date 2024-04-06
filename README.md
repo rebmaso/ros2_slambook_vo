@@ -15,18 +15,23 @@ gnome-terminal -- bash -c "cd ~/ros2_ws; source install/setup.bash; ros2 run sla
 gnome-terminal -- bash -c "cd ~/Datasets/uhumans; ros2 bag play  uHumans2_apartment_s1_00h_ros2.bag; exec bash" &
 ```
 
+Or, in separate terminals:
+```
+cd ~/ros2_ws; source install/setup.bash; ros2 run rviz2 rviz2 -d src/slambk_vo/config/uhumans/uhumans.rviz
+cd ~/ros2_ws; source install/setup.bash; ros2 run slambk_vo main src/slambk_vo/config/uhumans/config.yaml
+cd ~/Datasets/uhumans; ros2 bag play  uHumans2_apartment_s1_00h_ros2.bag
+```
+
+
 To debug the ros node: 
 
 ```
 colcon build --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo
 ```
 
-
 ```
-# Launch node
-gnome-terminal -- bash -c "cd ~/ros2_ws; source install/setup.bash; ros2 run --prefix 'gdb -ex run --args' slambk_vo main src/slambk_vo/config/uhumans/config.yaml; exec bash" &
-# Play ros bag
-gnome-terminal -- bash -c "cd ~/Datasets/uhumans; ros2 bag play  uHumans2_apartment_s1_00h_ros2.bag; exec bash" &
+cd ~/ros2_ws; source install/setup.bash; ros2 run --prefix 'gdb -ex run --args' slambk_vo main src/slambk_vo/config/uhumans/config.yaml
+cd ~/Datasets/uhumans; ros2 bag play  uHumans2_apartment_s1_00h_ros2.bag
 ```
 
 ## Changelog

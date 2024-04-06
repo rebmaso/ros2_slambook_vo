@@ -44,10 +44,13 @@ bool Frontend::AddFrame(Frame::Ptr frame) {
 bool Frontend::Track() {
 
     // last frame is nullptr only at init
-    // should always enter if here as init is handled separrately
-    if (last_frame_) {
-        current_frame_->SetPose(relative_motion_ * last_frame_->Pose());
-    }
+    // Here, should always be valid
+    if (!last_frame_) 
+        throw std::runtime_error("[ERROR] Empty last frame.");
+    if (!current_frame_) 
+        throw std::runtime_error("[ERROR] Empty current frame.");
+
+    current_frame_->SetPose(relative_motion_ * last_frame_->Pose());
 
     int num_track_last = TrackLastFrame();
     tracking_inliers_ = EstimateCurrentPose();
@@ -297,6 +300,10 @@ int Frontend::TrackLastFrame() {
 }
 
 bool Frontend::StereoInit() {
+
+    if (!current_frame_) 
+        throw std::runtime_error("[ERROR] Empty current frame.");
+        
     int num_features_left = DetectFeatures();
     int num_coor_features = FindFeaturesInRight();
     if (num_coor_features < num_features_init_) {
