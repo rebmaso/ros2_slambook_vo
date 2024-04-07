@@ -34,7 +34,8 @@ bool Dataset::Init() {
             projection_data[8], projection_data[9], projection_data[10];
         Vec3 t;
         t << projection_data[3], projection_data[7], projection_data[11];
-        // t = K.inverse() * t; // ????
+        // since KITTI calib format prrovides P = K * T, t = inv(K) * t
+        t = K.inverse() * t;
         // K = K * 0.5; // did this bc he halved imgs as well
         Camera::Ptr new_camera(new Camera(K(0, 0), K(1, 1), K(0, 2), K(1, 2),
                                           t.norm(), SE3(SO3(), t)));
