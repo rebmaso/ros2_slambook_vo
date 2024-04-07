@@ -37,7 +37,7 @@ class Frontend {
     Frontend();
 
     /// External interface, adds a frame and computes its pose estimation result
-    bool AddFrame(Frame::Ptr frame);
+    bool AddFrame(Frame::Ptr & frame);
 
     /// Set functions
     void SetMap(Map::Ptr map) { map_ = map; }

@@ -24,6 +24,22 @@ relative_tf = np.matmul(tf_left_cam_inv,tf_right_cam)
 print("Relative transformation matrix:")
 print(relative_tf)
 
+print("Relative transformation matrix inv:")
+relative_tf_inv = np.linalg.inv(relative_tf)
+print(relative_tf_inv)
+
+# get projection matix (P = K * T)
+K = np.array([[415.6922, 0., 360.],[0, 415.6922, 240.],[0, 0, 1]])
+
+P = np.matmul(K, relative_tf[:-1,:])
+P_inv = np.matmul(K, relative_tf_inv[:-1,:])
+
+print("Projection matrix:")
+print(P)
+
+print("Projection matrix inv:")
+print(P_inv)
+
 # Relative transformation matrix:
 # [[1.  0.  0.  0.1]
 #  [0.  1.  0.  0. ]

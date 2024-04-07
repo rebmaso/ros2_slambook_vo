@@ -12,7 +12,7 @@ Frontend::Frontend() {
     num_features_ = Config::Get<int>("num_features");
 }
 
-bool Frontend::AddFrame(Frame::Ptr frame) {
+bool Frontend::AddFrame(Frame::Ptr & frame) {
     
     // cv::imshow("raw_img_0",frame->left_img_);
     // cv::imshow("raw_img_1",frame->right_img_);
@@ -50,9 +50,15 @@ bool Frontend::Track() {
     if (!current_frame_) 
         throw std::runtime_error("[ERROR] Empty current frame.");
 
+    // set current frame pose as last pose + offset (is 0 at first iter)
+    // curr_T_w = curr_T_last * last_T_w
+    // = last_T_w at first
     current_frame_->SetPose(relative_motion_ * last_frame_->Pose());
 
+    // Track last frame features into new frame, using currrent pose est to 
+    // guess their rough loocation in new frame
     int num_track_last = TrackLastFrame();
+    // est pose via pnp given 2d 3d corrrespondences
     tracking_inliers_ = EstimateCurrentPose();
 
     // depending on tracking inliers, we decide whether to add new kf orr not
@@ -70,6 +76,8 @@ bool Frontend::Track() {
     // Only inserts new kf if tracking inliers low
     InsertKeyframe();
 
+    // curr_T_last = curr_T_w * inv(last_T_w) 
+    // will set as curr pose next iter
     relative_motion_ = current_frame_->Pose() * last_frame_->Pose().inverse();
 
     if (viewer_) viewer_->AddCurrentFrame(current_frame_);
@@ -258,17 +266,20 @@ int Frontend::EstimateCurrentPose() {
 
 int Frontend::TrackLastFrame() {
 
-    // use LK flow to estimate points in the right image
+    // use LK flow to track featurres in new img, starting from guess
+    // obtained by projecting landmarrks from map into current img
     std::vector<cv::Point2f> kps_last, kps_current;
     for (auto &kp : last_frame_->features_left_) {
         if (kp->map_point_.lock()) {
             // use project point
             auto mp = kp->map_point_.lock();
+            // project landmarks into curr img
             auto px =
                 camera_left_->world2pixel(mp->pos_, current_frame_->Pose());
             kps_last.push_back(kp->position_.pt);
             kps_current.push_back(cv::Point2f(px[0], px[1]));
         } else {
+            // if mutex busy, use last feature locations as guess (assume did not move much)
             kps_last.push_back(kp->position_.pt);
             kps_current.push_back(kp->position_.pt);
         }
