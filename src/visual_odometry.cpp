@@ -28,7 +28,7 @@ bool VisualOdometry::Init() {
     backend_ = Backend::Ptr(new Backend);
     loopclos_ = LoopClos::Ptr(new LoopClos);
     map_ = Map::Ptr(new Map);
-    // viewer_ = Viewer::Ptr(new Viewer);
+    viewer_ = Viewer::Ptr(new Viewer);
     
     // Link frontend interfaces & pass camera params
     frontend_->SetBackend(backend_); // to inform backend of new kf
@@ -46,7 +46,7 @@ bool VisualOdometry::Init() {
     backend_->SetCameras(dataset_->GetCamera(0), dataset_->GetCamera(1));
 
     // Link viewer interfaces
-    // viewer_->SetMap(map_);
+    viewer_->SetMap(map_);
 
     return true;
 }
