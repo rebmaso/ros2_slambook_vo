@@ -77,9 +77,11 @@ class VONode : public rclcpp::Node
                     const_cast<uint8_t*>(&img_1->data[0]), img_1->step);
 
 
-      auto new_frame = Frame::CreateFrame();
-      new_frame->left_img_ = raw_img_0;
-      new_frame->right_img_ = raw_img_1;
+      // important to clone otherwise even if smart pointer is used, underlying image goes out of scope
+      Frame::Ptr new_frame = Frame::CreateFrame();
+      new_frame->left_img_ = raw_img_0.clone();
+      new_frame->right_img_ = raw_img_1.clone();
+
       vo->Step(new_frame);
 
     }

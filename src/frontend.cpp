@@ -14,11 +14,9 @@ Frontend::Frontend() {
 
 bool Frontend::AddFrame(Frame::Ptr & frame) {
     
-    cv::imshow("raw_img_0",frame->left_img_);
-    cv::imshow("raw_img_1",frame->right_img_);
-    cv::waitKey();
-
-    if (frame == nullptr) {return false;}
+    // cv::imshow("raw_img_0",frame->left_img_);
+    // cv::imshow("raw_img_1",frame->right_img_);
+    // cv::waitKey();
      
     current_frame_ = frame;
 
@@ -36,19 +34,12 @@ bool Frontend::AddFrame(Frame::Ptr & frame) {
             break;
     }
 
-
     last_frame_ = current_frame_;
+
     return true;
 }
 
 bool Frontend::Track() {
-
-    // last frame is nullptr only at init
-    // Here, should always be valid
-    if (!last_frame_) 
-        throw std::runtime_error("[ERROR] Empty last frame.");
-    if (!current_frame_) 
-        throw std::runtime_error("[ERROR] Empty current frame.");
 
     // set current frame pose as last pose + offset (is 0 at first iter)
     // curr_T_w = curr_T_last * last_T_w
@@ -57,9 +48,11 @@ bool Frontend::Track() {
 
     // Track last frame features into new frame, using currrent pose est to 
     // guess their rough loocation in new frame
-    cv::imshow("current", current_frame_->left_img_);
-    cv::imshow("last", last_frame_->left_img_);
-    cv::waitKey();
+    
+    // cv::imshow("current", current_frame_->left_img_);
+    // cv::imshow("last", last_frame_->left_img_);
+    // cv::waitKey();
+
     int num_track_last = TrackLastFrame();
     // est pose via pnp given 2d 3d corrrespondences
     tracking_inliers_ = EstimateCurrentPose();
@@ -290,10 +283,6 @@ int Frontend::TrackLastFrame() {
 
     std::vector<uchar> status;
     Mat error;
-
-    cv::imshow("current", current_frame_->left_img_);
-    cv::imshow("last", last_frame_->left_img_);
-    cv::waitKey();
 
     cv::calcOpticalFlowPyrLK(
         last_frame_->left_img_, current_frame_->left_img_, kps_last,

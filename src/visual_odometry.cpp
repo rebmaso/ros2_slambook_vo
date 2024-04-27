@@ -51,43 +51,6 @@ bool VisualOdometry::Init() {
     return true;
 }
 
-
-// Call Step()
-void VisualOdometry::Run() {
-    while (1) {
-        LOG(INFO) << "VO is running";
-        if (Step() == false) {
-            break;
-        }
-    }
-
-    // If step returrns false (no morre frrames orr failure) -> stop!
-    backend_->Stop();
-    loopclos_->Stop();
-    viewer_->Close();
-
-    LOG(INFO) << "VO exit";
-}
-
-// add new frame to frontend
-// returrn false if end trame, or failure
-bool VisualOdometry::Step() {
-
-    Frame::Ptr new_frame = dataset_->NextFrame();
-
-    if (new_frame == nullptr) return false;
-
-    auto t1 = std::chrono::steady_clock::now();
-    bool success = frontend_->AddFrame(new_frame);
-    auto t2 = std::chrono::steady_clock::now();
-    auto time_used = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
-
-    LOG(INFO) << "VO step cost time: " << time_used.count() << " seconds.";
-    
-    return success;
-}
-
-// method that does not use dataset
 bool VisualOdometry::Step(Frame::Ptr & new_frame) {
 
     if (new_frame == nullptr) {
