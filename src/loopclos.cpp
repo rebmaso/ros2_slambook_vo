@@ -130,24 +130,38 @@ namespace myslam {
                 orb_descriptor->detectAndCompute(loop_kf->left_img_, cv::Mat(), keypoints_loop, descriptors_loop);
 
                 // match keypoints
-                std::vector<cv::DMatch> matches_raw;
-                matcher.match(descriptors, descriptors_loop, matches_raw);
+                std::vector<std::vector<cv::DMatch>> matches_raw;
+                matcher.knnMatch(descriptors, descriptors_loop, matches_raw, 2); // need vecvec for knn
 
                 // LOG(INFO) << "No. raw 2D-2D matches: " << matches_raw.size();
 
                 // skip if too few matches
                 if(matches_raw.size() < 20) {
-                    LOG(INFO) << "Not enough raw matches - skipping";
+                    LOG(INFO) << "Not enough raw matches (" << matches_raw.size() << ") - skipping";
+                    continue;
+                }
+
+                // Lowes test (if distance of second-best match is almost as good, bad!)
+                const float lowes_constant = 0.9f;
+                std::vector<cv::DMatch> good_matches; // this one is a simple vector (not vecvec) bc we dont need second best match anymore
+                for(auto m : matches_raw) {
+                    if(m[0].distance < m[1].distance * lowes_constant)
+                    good_matches.push_back(m[0]);
+                }
+
+                // skip if too few matches
+                if(good_matches.size() < 20) {
+                    LOG(INFO) << "Not enough matches passing Lowe's (" << good_matches.size() << ")- skipping";
                     continue;
                 }
 
                 // Prepare data for pnp
                 std::vector<cv::Point2d> src_pts, dst_pts;
                 std::vector<cv::Point3d> src_pts_3D;
-                for (size_t i = 0; i < matches_raw.size(); i++) {
-                    src_pts.push_back(keypoints[matches_raw[i].queryIdx].pt);
-                    dst_pts.push_back(keypoints_loop[matches_raw[i].trainIdx].pt);
-                    src_pts_3D.push_back(landmarks[matches_raw[i].trainIdx]);
+                for (size_t i = 0; i < good_matches.size(); i++) {
+                    src_pts.push_back(keypoints[good_matches[i].queryIdx].pt);
+                    dst_pts.push_back(keypoints_loop[good_matches[i].trainIdx].pt);
+                    src_pts_3D.push_back(landmarks[good_matches[i].trainIdx]);
                 }
 
                 cv::Mat K_cv;
@@ -165,12 +179,12 @@ namespace myslam {
                 long unsigned int n_inliers_pnp =  inliers_pnp.size();
 
                 // skip if n inliers low
-                if(n_inliers_pnp < 10 || n_inliers_pnp / matches_raw.size() < 0.5) {
-                    LOG(INFO) << "Not enough PnP inliers (" << n_inliers_pnp << "/" << matches_raw.size() << ") - skipping";
+                if(n_inliers_pnp < 10 || n_inliers_pnp / good_matches.size() < 0.5) {
+                    LOG(INFO) << "Not enough PnP inliers (" << n_inliers_pnp << "/" << good_matches.size() << ") - skipping";
                     continue;
                 }
 
-                LOG(FATAL) << "LOOP CLOSURE: 2D-3D inliers: " << n_inliers_pnp << " / " << matches_raw.size();
+                LOG(FATAL) << "LOOP CLOSURE: 2D-3D inliers: " << n_inliers_pnp << " / " << good_matches.size();
 
                 // add frame to loop closure frames
                 positive_loop_kfs.insert(std::make_pair(loop_kf->keyframe_id_,loop_kf));
@@ -181,9 +195,9 @@ namespace myslam {
 
                 for(int inlier : inliers_pnp) {
                     // create new feature object for inlier keypoint in loop kf
-                    auto loop_kp = keypoints_loop[matches_raw[inlier].trainIdx];
+                    auto loop_kp = keypoints_loop[good_matches[inlier].trainIdx];
                     Feature::Ptr loop_feat = std::make_shared<Feature>(loop_kf, loop_kp);
-                    Feature::Ptr new_feat = good_features_left[matches_raw[inlier].queryIdx];
+                    Feature::Ptr new_feat = good_features_left[good_matches[inlier].queryIdx];
                     auto mp = new_feat->map_point_.lock();
 
                     if(mp) mp->AddObservation(loop_feat);
