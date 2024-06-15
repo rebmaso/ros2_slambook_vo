@@ -40,7 +40,7 @@ cd ~/Datasets/uhumans; ros2 bag play  uHumans2_apartment_s1_00h_ros2.bag
 
 - added ros 2 support
 
-- added opencv4 suppoort
+- added opencv4 support
 
 
 ## TODOs

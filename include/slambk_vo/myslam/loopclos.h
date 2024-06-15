@@ -70,6 +70,10 @@ class LoopClos {
                     Map::LandmarksType& landmarks, 
                     Map::KeyframesType &keyframes_loop) const;
 
+    float measureCoverageFactor(int & img_width, 
+                                int & img_height, 
+                                std::vector<cv::Point2d> & keypoints);
+
     // threadsafe queue for new keyframe loop closure processing
     // frame pointers could be freed. always check when accessing!
     threadsafe_queue<Frame::Ptr> kf_queue;

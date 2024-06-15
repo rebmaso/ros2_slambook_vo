@@ -9,7 +9,15 @@ num_features: 1000
 num_features_init: 50
 num_features_tracking: 50
 
+img_width: 720
+img:height: 480
+
+do_loop_closure: true
 loop_closure_kf_queue_max_size: 100
+loop_closure_min_inliers: 10
+loop_closure_min_coverage: 0.3
+loop_closure_min_similarity: 0.25
+loop_closure_p3p_threshold: 8.0
 
 # topics
 cam0_topic: "/tesse/left_cam/mono/image_raw"

@@ -41,6 +41,13 @@ namespace myslam {
 
     void LoopClos::LoopClosLoop() {
 
+        int img_width = Config::Get<int>("img_width");
+        int img_height = Config::Get<int>("img_height");
+        int loop_closure_min_inliers = Config::Get<int>("loop_closure_min_inliers");
+        float loop_closure_min_coverage = Config::Get<float>("loop_closure_min_coverage");
+        float loop_closure_min_similarity = Config::Get<float>("loop_closure_min_similarity");
+        float loop_closure_p3p_threshold = Config::Get<float>("loop_closure_p3p_threshold");
+    /*
         while (loopclos_running_.load()) {
 
             // wait for new kf
@@ -88,7 +95,7 @@ namespace myslam {
                 LOG(INFO) << "CANDIDATE LOOP CLOSURE frames: " << kf->keyframe_id_ <<"  " << result.Id;
                 
                 // if similarity high enough (tune)
-                if(result.Score < 0.25) {
+                if(result.Score < loop_closure_min_similarity) {
                     LOG(INFO) << "Similarity not high enough - skipping";
                     continue;
                 }
@@ -115,7 +122,7 @@ namespace myslam {
 
                 // skip if not enough good features in image
                 if(!kf->getKeypointsAndLandmarks(keypoints, landmarks, good_features_left, 30)) {
-                    LOG(INFO) << "Can't get new frame kpts and landmarks - skipping";
+                    LOG(WARNING) << "Can't get new frame kpts and landmarks - skipping";
                     continue;
                 }
 
@@ -136,7 +143,7 @@ namespace myslam {
                 // LOG(INFO) << "No. raw 2D-2D matches: " << matches_raw.size();
 
                 // skip if too few matches
-                if(matches_raw.size() < 20) {
+                if(matches_raw.size() < loop_closure_min_inliers) {
                     LOG(INFO) << "Not enough raw matches (" << matches_raw.size() << ") - skipping";
                     continue;
                 }
@@ -173,18 +180,23 @@ namespace myslam {
                 // P3P with RANSAC
                 std::vector<int> inliers_pnp;
                 solvePnPRansac(src_pts_3D, dst_pts, K_cv, dist_coeffs, rvec, tvec, false, 
-                                100, 8.0, 0.99, inliers_pnp, cv::SOLVEPNP_P3P);
-                
-                // We dont need refinement. its just a way to count inliers & verify loop
-                long unsigned int n_inliers_pnp =  inliers_pnp.size();
+                                100, loop_closure_p3p_threshold, 0.99, inliers_pnp, cv::SOLVEPNP_P3P);
 
-                // skip if n inliers low
-                if(n_inliers_pnp < 10 || n_inliers_pnp / good_matches.size() < 0.5) {
-                    LOG(INFO) << "Not enough PnP inliers (" << n_inliers_pnp << "/" << good_matches.size() << ") - skipping";
-                    continue;
+                // extract inliers
+                std::vector<cv::Point2d> dst_pts_inliers;
+                size_t n_inliers_pnp =  inliers_pnp.size();
+                for (size_t i = 0; i < n_inliers_pnp; i++) {
+                    dst_pts_inliers.push_back(dst_pts[i]);
                 }
 
-                LOG(FATAL) << "LOOP CLOSURE: 2D-3D inliers: " << n_inliers_pnp << " / " << good_matches.size();
+                // Check number of effective inliers
+                // skip if n of effective inliers low
+                float coverage_factor = measureCoverageFactor(img_width, img_height, dst_pts_inliers);
+
+                // LOG(INFO) << "LOOP CLOSURE: 2D-3D inliers: " << n_inliers_pnp << " / " << good_matches.size();
+                LOG(INFO) << "LOOP CLOSURE: coverage factor: " << coverage_factor;
+
+                if( coverage_factor < loop_closure_min_coverage) continue;
 
                 // add frame to loop closure frames
                 positive_loop_kfs.insert(std::make_pair(loop_kf->keyframe_id_,loop_kf));
@@ -232,6 +244,8 @@ namespace myslam {
                 if(mp) mp->RemoveObservation(loop_feat);
             }
         }
+    */
+
     }
 
     // todo: 
@@ -239,7 +253,7 @@ namespace myslam {
     // then some  landmarks should have observation pointing at loop frame (todo).
     // you should not modify anything as regards edges, if you did that part right.
 
-    // todo: levenberg marquardt hides problem: too much gauge freedom! Jacoian singular
+    // todo: levenberg marquardt hides problem: gauge freedom! Jacoian singular
     // You should always fix oldest keyframe
 
     void LoopClos::Optimize(Map::KeyframesType &keyframes,
@@ -402,6 +416,50 @@ namespace myslam {
     for (auto &v : vertices_landmarks) {
         landmarks.at(v.first)->SetPos(v.second->estimate());
     }
+}
+
+float LoopClos::measureCoverageFactor(int & img_width, int & img_height, std::vector<cv::Point2d> & keypoints) {
+
+    // create n by n grid
+    // assign cell size in pixels
+
+    int cell_width = 8;
+    const int grid_height = floor(img_height / cell_width);
+    const int grid_width = floor(img_width / cell_width);
+    const int total_n_of_cells = grid_height * grid_width;
+
+    std::vector<std::vector<bool>> occupancy_grid(grid_height, std::vector<bool>(grid_width, false));;
+
+    // // set all grid cells to false
+    // for (int i = 0; i < grid_height; i++){
+    //     for (int j = 0; j < grid_width; j++){
+    //         occupancy_grid[i][j] = false;
+    //     }
+    // }
+
+    // set all covered grid cells to true
+    for(cv::Point2d & point : keypoints) {
+        // mark cell as covered
+        int cell_i = floor(point.y / cell_width);
+        int cell_j = floor(point.x / cell_width);
+        occupancy_grid[cell_i][cell_j] = true;
+    }
+
+    // count number of covered cells
+    int count_covered_cells = 0;
+    for (int i = 0; i < grid_height; i++){
+        for (int j = 0; j < grid_width; j++){
+            if(occupancy_grid[i][j] == true) {
+                count_covered_cells++;
+            }
+        }
+    }
+
+    // return coverage factor
+    float coverage_factor = float(count_covered_cells) / float(total_n_of_cells);
+
+    return coverage_factor;
+     
 }
 
 
